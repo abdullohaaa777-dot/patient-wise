@@ -29,16 +29,23 @@ export default function Auth() {
         if (error) throw error;
         navigate('/');
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             data: { full_name: fullName },
-            emailRedirectTo: window.location.origin,
           },
         });
         if (error) throw error;
-        toast.success('Check your email to confirm your account!');
+
+        if (data?.user) {
+          if (data.session) {
+            toast.success(t('auth.signup') + ' ' + t('common.loading'));
+            navigate('/');
+          } else {
+            toast.success('Check your email to confirm your account!');
+          }
+        }
       }
     } catch (err: any) {
       toast.error(err.message);
